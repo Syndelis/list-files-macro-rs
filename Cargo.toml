@@ -19,6 +19,7 @@ proc-macro = true
 glob = "0.3.0"
 quote = "^1.0.21"
 syn = "^1.0.99"
+rustversion = "1.0.20"
 
 [dev-dependencies]
 version-sync = "^0.9.4"

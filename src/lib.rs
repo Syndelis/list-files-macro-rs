@@ -54,6 +54,8 @@
 
 #![doc(html_root_url = "https://docs.rs/list_files_macro/0.1.0")]
 
+use std::path::PathBuf;
+
 use glob::glob;
 use proc_macro::{TokenStream, Span};
 use syn::{Expr, punctuated::Punctuated, Token, parse::Parser, ExprLit, Lit, ExprPath};
@@ -76,7 +78,7 @@ pub fn list_files(input: TokenStream) -> TokenStream {
 	// Resolve directory
 	let absolute_path =
 		if path.starts_with(".") {
-			let source_path: std::path::PathBuf = Span::call_site().file().into();
+			let source_path = get_file_path(Span::call_site());
 			source_path.parent().unwrap().join(&path).into_os_string().into_string().unwrap()
 		} else {
 			path
@@ -95,6 +97,16 @@ pub fn list_files(input: TokenStream) -> TokenStream {
 	} else {
 		quote!([#(#file_literals),*])
 	}.into()
+}
+
+#[rustversion::any(since(2025-05-08), since(1.88))]
+fn get_file_path(span: Span) -> PathBuf {
+    span.file().into()
+}
+
+#[rustversion::not(any(since(2025-05-08), since(1.88)))]
+fn get_file_path(span: Span) -> PathBuf {
+    span.source_file().path()
 }
 
 // Include the readme and changelog as hidden documentation so they're tested by cargo test
